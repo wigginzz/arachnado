@@ -13,7 +13,7 @@ from tornado import gen
 from tornado.ioloop import PeriodicCallback
 from bson.objectid import ObjectId
 import scrapy
-from scrapy.exceptions import NotConfigured
+from scrapy.exceptions import NotConfigured,DropItem
 from scrapy import signals
 
 from arachnado.utils.twistedtornado import tt_coroutine
@@ -152,6 +152,9 @@ class MongoExportPipeline(object):
 
     @tt_coroutine
     def process_item(self, item, spider):
+        if len(item['items']) < 1:
+            raise DropItem
+            return
         mongo_item = scrapy_item_to_dict(item)
         if self.job_id_key:
             mongo_item[self.job_id_key] = self.job_id
@@ -184,6 +187,7 @@ class MongoExportPipeline(object):
     def _stop_periodic_tasks(self):
         if self._dump_pc is not None and self._dump_pc.is_running():
             self._dump_pc.stop()
+        self.items_col.remove({})
 
     def _get_stats_json(self):
         # json is to fix an issue with dots in key names

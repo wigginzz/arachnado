@@ -29,9 +29,14 @@ class ArachnadoRPC(object):
         self.dispatcher = Dispatcher()
         for obj in self.rpc_objects:
             self.dispatcher.add_object(obj)
+        print(self.dispatcher)
 
-    def handle_request(self, body):
-        response = JSONRPCResponseManager.handle(body, self.dispatcher)
+    def handle_request(self, body):  
+        dict_body = eval(body)
+        str_body = str(dict_body['data'])
+        print(str_body)
+        response = JSONRPCResponseManager.handle(str_body.replace("'","\""), self.dispatcher)
+        print(type(response.result))
         if isinstance(response.result, Future):
             response.result.add_done_callback(
                 partial(self.on_done, data=response.data))

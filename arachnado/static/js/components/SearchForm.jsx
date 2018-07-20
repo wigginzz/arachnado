@@ -3,9 +3,7 @@
 var React = require("react");
 var { Panel, Glyphicon } = require("react-bootstrap");
 
-var {CrawlOptions} = require("../components/CrawlOptions");
 var JobStore = require("../stores/JobStore");
-var {keyValueListToDict} = require('../utils/SitesAPI');
 
 
 // it must be rendered inside a small bootstrap Panel
@@ -40,11 +38,6 @@ export var SearchForm = React.createClass({
                         </div>
                     </div>
                 </form>
-                {this.state.isOptionsVisible
-                    ? <CrawlOptions args={this.state.args} settings={this.state.settings}
-                        onArgsChange={this.onArgsChange} onSettingsChange={this.onSettingsChange} />
-                    : null
-                }
             </div>
         );
     },
@@ -55,12 +48,12 @@ export var SearchForm = React.createClass({
 
     onSubmit: function (ev) {
         ev.preventDefault();
-        var options = {
-            settings: keyValueListToDict(this.state.settings),
-            args: keyValueListToDict(this.state.args),
+		var options = {
+            settings: null,
+            args: {"keywords":this.state.value},
         };
         if (this.state.value != "") {
-            JobStore.Actions.startCrawl(this.state.value, options);
+            JobStore.Actions.startCrawl("spider://ClassicMomentSpider", options);
             this.setState({value: ""});
         }
         this.setState({isOptionsVisible: false})

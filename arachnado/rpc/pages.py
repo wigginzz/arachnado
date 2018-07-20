@@ -1,4 +1,5 @@
 from arachnado.storages.mongotail import MongoTailStorage
+from tornado import gen 
 
 
 class Pages(object):
@@ -10,6 +11,15 @@ class Pages(object):
         self.handler = handler
         self.storage = MongoTailStorage(item_storage.mongo_uri,
                                         item_storage.cache_flag)
+    @gen.coroutine
+    def list(self):
+        items_ds = yield self.storage.fetch()
+        items = []
+        for item in items_ds:
+            items.extend(item['items'])
+        print(items)
+        return items
+        
 
     def subscribe(self, last_id=0, query=None, fields=None, fetch_delay=None):
         if fetch_delay:

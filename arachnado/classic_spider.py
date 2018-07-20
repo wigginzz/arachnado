@@ -25,7 +25,7 @@ class ClassicMomentSpider(ArachnadoSpider):
     def __init__(self, *args, **kwargs):
         super(ClassicMomentSpider, self).__init__(*args, **kwargs)
         self.start_url = add_scheme_if_missing(self.domain)
-
+        self.__keywords = kwargs['keywords'].split()
 
     @property
     def link_extractor(self):
@@ -44,24 +44,21 @@ class ClassicMomentSpider(ArachnadoSpider):
             return
             
         content = response.xpath('//div[@class="article oneColumn pub_border"]')                
-        """keywords = self.__keywords;
+        keywords = self.__keywords; 
         pattern =  keywords[0]
         for key in range(1,len(keywords),1):
-            pattern = pattern + '|' + keywords[key]"""
+            pattern = pattern + '|' + keywords[key]
         news_conntent = content.xpath('div[@class="pages_content"]/p/text()').extract()
-        #match = re.findall(pattern,''.join(news_conntent))            
-        #if len(match):
-        imgUrls = content.xpath('div[@class="pages_content"]/p/img/@src').extract()
-        print(response.url)
-        print(imgUrls)
-        for imgurl in imgUrls:
-            item = {
-                'url':response.url,
-                'title':content.xpath('h1/text()').extract_first(),
-                'imgurl':re.sub(r'[^\/]+$','',response.url) + imgurl,
-            }
-            print(item);
-            yield item;
+        match = re.findall(pattern,''.join(news_conntent))    
+        if len(match):
+            imgUrls = content.xpath('div[@class="pages_content"]/p/img/@src').extract()
+            for imgurl in imgUrls:
+                item = {
+                    'url':response.url,
+                    'title':content.xpath('h1/text()').extract_first(),
+                    'imgurl':re.sub(r'[^\/]+$','',response.url) + imgurl,
+                }
+                yield item;
         
         if self.settings.getbool('PREFER_PAGINATION'):
             # Follow pagination links; pagination is not a subject of

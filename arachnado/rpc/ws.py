@@ -30,7 +30,7 @@ class RpcWebsocketHandler(ArachnadoRPC, websocket.WebSocketHandler):
         if isinstance(data, six.string_types):
             message = data
         else:
-            message = json_encode(data)
+            message = json_encode({'event': 'rpc:response', 'data': data})
         try:
             if sys.getsizeof(message) < max_message_size or not max_message_size:
                 self.write_message(message)
